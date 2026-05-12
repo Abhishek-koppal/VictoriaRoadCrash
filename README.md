@@ -7,7 +7,7 @@ data across Victoria, Australia from 2012 to 2025.
 
 ## Dashboard Overview
 
-![Dashboard Overview](screenshots/dashboard_overview.png)
+![Dashboard Overview](dashboard_overview.png)
 
 Key metrics visualised:
 - 194.44K total accidents from 2012–2025
@@ -49,14 +49,13 @@ Each SQL file corresponds to a specific dashboard widget:
 
 | File | Description |
 |------|-------------|
-| `01_data_cleaning.sql` | Filters raw dataset to required columns |
-| `02_serious_injury_by_suburb.sql` | Top suburbs by serious injury count |
-| `03_accidents_by_week.sql` | Crash count grouped by day of week |
-| `04_accidents_by_hour.sql` | Crash volume by hour (peaks 3–5 PM Fri) |
-| `05_top10_accident_zones.sql` | Top 10 LGAs by accident share |
-| `06_total_accidents_by_year.sql` | Year-on-year accident trend 2012–2025 |
-| `07_fatality_rate_by_location.sql` | Fatality rate for regional locations |
-
+| `01_victoria_map.sql` | Victoria Map |
+| `02_serious_injury_by_suburb.sql` | Serious Injury by Suburb |
+| `03_accidents_by_week.sql` | Accident by Week |
+| `04_top10_accident_zones.sql` | Top 10 LGA's |
+| `05_accidents_by_hour.sql` | Crash Peak Time |
+| `06_total_accidents_by_year.sql` | Total number of accidents from 2012 - 2025 |
+| `07_top10_local_areas_by_fatality_rate` | Fatality Rate by Location |
 ---
 
 ##  Key Insights
