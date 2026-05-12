@@ -1,0 +1,707 @@
+{
+  "datasets": [
+    {
+      "name": "a2421752",
+      "displayName": "Victoria Map",
+      "queryLines": [
+        "select LONGITUDE, LATITUDE, ACCIDENT_TYPE, ACCIDENT_TIME from roadcrashvic"
+      ],
+      "catalog": "victoria_road_crash",
+      "schema": "default"
+    },
+    {
+      "name": "65b77d86",
+      "displayName": "Top 10 accident zones",
+      "queryLines": [
+        "select LGA_NAME, count(*) as accident_count\n",
+        "from roadcrashvic\n",
+        "group by LGA_NAME\n",
+        "order by accident_count desc\n",
+        "limit 10"
+      ],
+      "catalog": "victoria_road_crash",
+      "schema": "default"
+    },
+    {
+      "name": "e95c70ac",
+      "displayName": "Total accident",
+      "queryLines": [
+        "SELECT\n",
+        "  YEAR(ACCIDENT_DATE) AS year,\n",
+        "  COUNT(*) AS total_accidents\n",
+        "FROM\n",
+        "  roadcrashvic\n",
+        "GROUP BY\n",
+        "  YEAR(ACCIDENT_DATE)\n",
+        "ORDER BY\n",
+        "  year ASC"
+      ],
+      "catalog": "victoria_road_crash",
+      "schema": "default"
+    },
+    {
+      "name": "ff9e0cd4",
+      "displayName": "Crash Incident Clusters By Road With Geo Coordinates",
+      "queryLines": [
+        "-- Find crash hotspots by road, with coordinates for heat map plotting\n",
+        "SELECT\n",
+        "  road_name,\n",
+        "  latitude,\n",
+        "  longitude,\n",
+        "  COUNT(*) AS crash_count\n",
+        "FROM\n",
+        "  roadcrashvic\n",
+        "WHERE\n",
+        "  latitude IS NOT NULL\n",
+        "  AND longitude IS NOT NULL\n",
+        "GROUP BY\n",
+        "  road_name,\n",
+        "  latitude,\n",
+        "  longitude\n",
+        "ORDER BY\n",
+        "  crash_count DESC\n",
+        "LIMIT 100"
+      ],
+      "catalog": "victoria_road_crash",
+      "schema": "default"
+    },
+    {
+      "name": "469a967b",
+      "displayName": "Serious Injury Accidents by Suburb on Streets",
+      "queryLines": [
+        "\n",
+        "SELECT\n",
+        "  LGA_NAME AS suburb,\n",
+        "  SEVERITY,\n",
+        "  COUNT(*) AS accident_count\n",
+        "FROM\n",
+        "  roadcrashvic\n",
+        "WHERE\n",
+        "  LGA_NAME IS NOT NULL and \n",
+        "  SEVERITY  = 'Serious injury accident' and ROAD_TYPE = 'STREET'\n",
+        "GROUP BY\n",
+        "  LGA_NAME,\n",
+        "  SEVERITY\n",
+        "ORDER BY\n",
+        "  accident_count DESC\n",
+        "LIMIT 10"
+      ],
+      "catalog": "victoria_road_crash",
+      "schema": "default"
+    },
+    {
+      "name": "b4985fbf",
+      "displayName": "road crash victorian data summary count",
+      "queryLines": [
+        "select * from roadcrashvic"
+      ],
+      "catalog": "victoria_road_crash",
+      "schema": "default"
+    },
+    {
+      "name": "309d0d43",
+      "displayName": "Road Crash Frequency by hour",
+      "queryLines": [
+        "select hour(ACCIDENT_TIME) as accident_hour, count(*) as crashes\n",
+        "from roadcrashvic\n",
+        "where ACCIDENT_TIME is not null\n",
+        "group by hour(ACCIDENT_TIME)\n",
+        "order by crashes desc\n"
+      ],
+      "catalog": "victoria_road_crash",
+      "schema": "default"
+    },
+    {
+      "name": "96c8dd47",
+      "displayName": "Top Ten Local Areas by Road Fatality Rate",
+      "queryLines": [
+        "SELECT\n",
+        "  location,\n",
+        "  fatal_count,\n",
+        "  total_count,\n",
+        "  fatality_rate\n",
+        "FROM (\n",
+        "  SELECT\n",
+        "    LGA_NAME AS location,\n",
+        "    SUM(FATALITY) AS fatal_count,\n",
+        "    COUNT(*) AS total_count,\n",
+        "    (SUM(FATALITY) / COUNT(*)) AS fatality_rate,\n",
+        "    RANK() OVER (ORDER BY (SUM(FATALITY) / COUNT(*)) DESC) AS rnk\n",
+        "  FROM roadcrashvic\n",
+        "  GROUP BY LGA_NAME\n",
+        ")\n",
+        "WHERE rnk BETWEEN 2 AND 11\n",
+        "ORDER BY fatality_rate DESC"
+      ],
+      "catalog": "victoria_road_crash",
+      "schema": "default"
+    }
+  ],
+  "pages": [
+    {
+      "name": "d8b583c5",
+      "displayName": "Untitled page",
+      "layout": [
+        {
+          "widget": {
+            "name": "victo",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "a2421752",
+                  "fields": [
+                    {
+                      "name": "LATITUDE",
+                      "expression": "`LATITUDE`"
+                    },
+                    {
+                      "name": "LONGITUDE",
+                      "expression": "`LONGITUDE`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "frame": {
+                "showTitle": true,
+                "title": "Victoria Road Crashes"
+              },
+              "widgetType": "symbol-map",
+              "encodings": {
+                "coordinates": {
+                  "latitude": {
+                    "fieldName": "LATITUDE"
+                  },
+                  "longitude": {
+                    "fieldName": "LONGITUDE"
+                  }
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 4,
+            "width": 6,
+            "height": 6
+          }
+        },
+        {
+          "widget": {
+            "name": "top-10",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "65b77d86",
+                  "fields": [
+                    {
+                      "name": "sum(accident_count)",
+                      "expression": "SUM(`accident_count`)"
+                    },
+                    {
+                      "name": "LGA_NAME",
+                      "expression": "`LGA_NAME`"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "frame": {
+                "showTitle": false,
+                "title": "Top 10 LGA's contribute around 35% of accidents among the data",
+                "showDescription": true,
+                "description": "These Top 10 LGA's contribute around 35% of accidents among the data"
+              },
+              "widgetType": "pie",
+              "encodings": {
+                "angle": {
+                  "fieldName": "sum(accident_count)",
+                  "scale": {
+                    "type": "quantitative"
+                  },
+                  "displayName": "Top 10 Accident Zones"
+                },
+                "color": {
+                  "fieldName": "LGA_NAME",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "label": {
+                  "show": true
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 10,
+            "width": 6,
+            "height": 7
+          }
+        },
+        {
+          "widget": {
+            "name": "deec99c4",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "469a967b",
+                  "fields": [
+                    {
+                      "name": "SEVERITY",
+                      "expression": "`SEVERITY`"
+                    },
+                    {
+                      "name": "sum(accident_count)",
+                      "expression": "SUM(`accident_count`)"
+                    },
+                    {
+                      "name": "suburb",
+                      "expression": "`suburb`"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "frame": {
+                "showDescription": true,
+                "description": "Serious Injury by Suburb"
+              },
+              "mark": {
+                "layout": "stack"
+              },
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "sum(accident_count)",
+                  "displayName": "Number of Accidents",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "y": {
+                  "fieldName": "suburb",
+                  "displayName": "Suburban",
+                  "scale": {
+                    "type": "categorical",
+                    "sort": {
+                      "by": "x-reversed"
+                    }
+                  }
+                },
+                "color": {
+                  "fieldName": "SEVERITY",
+                  "scale": {
+                    "type": "categorical",
+                    "mappings": []
+                  }
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 4,
+            "width": 6,
+            "height": 6
+          }
+        },
+        {
+          "widget": {
+            "name": "b9bb7c21",
+            "multilineTextboxSpec": {
+              "lines": [
+                "<span style=\"text-align:center;display:block\"><span style=\"font-size:18px\">**Breakdown of Road Crashes in Victoria&#32;**</span></span>\n",
+                "\n",
+                "<span style=\"text-align:center;display:block\">This data was taken from the DATAVIC and the data is from 2012 - 2025</span>"
+              ],
+              "verticalAlign": "VERTICAL_ALIGN_CENTER"
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "width": 12,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "cedda145",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "b4985fbf",
+                  "fields": [
+                    {
+                      "name": "count(*)",
+                      "expression": "COUNT(`*`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "frame": {
+                "showDescription": true,
+                "description": "Total Accidents from 2012 - 2025"
+              },
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "count(*)"
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 2,
+            "width": 6,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "5d1243cb",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "b4985fbf",
+                  "fields": [
+                    {
+                      "name": "avg(TOTAL_PERSONS)",
+                      "expression": "AVG(`TOTAL_PERSONS`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "frame": {
+                "showDescription": true,
+                "description": "Average people involved in accidents"
+              },
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "avg(TOTAL_PERSONS)",
+                  "format": {
+                    "type": "number-plain",
+                    "abbreviation": "compact",
+                    "decimalPlaces": {
+                      "type": "exact",
+                      "places": 0
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 2,
+            "width": 6,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "time",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "309d0d43",
+                  "fields": [
+                    {
+                      "name": "accident_hour",
+                      "expression": "`accident_hour`"
+                    },
+                    {
+                      "name": "crashes",
+                      "expression": "`crashes`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "frame": {
+                "showDescription": true,
+                "showTitle": true,
+                "title": "Time VS Accident hour",
+                "description": "Crashes peak on Fridays between 3 - 5 PM"
+              },
+              "widgetType": "line",
+              "encodings": {
+                "x": {
+                  "fieldName": "accident_hour",
+                  "displayName": "Accident Hour",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "y": {
+                  "fieldName": "crashes",
+                  "displayName": "Crashes",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "label": {
+                  "show": false
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 17,
+            "width": 6,
+            "height": 7
+          }
+        },
+        {
+          "widget": {
+            "name": "location-1",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "96c8dd47",
+                  "fields": [
+                    {
+                      "name": "fatality_rate",
+                      "expression": "`fatality_rate`"
+                    },
+                    {
+                      "name": "location",
+                      "expression": "`location`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "frame": {
+                "showTitle": true,
+                "title": "Fatality rate by Location"
+              },
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "location",
+                  "axis": {
+                    "labelAngle": 0
+                  },
+                  "displayName": "Location",
+                  "scale": {
+                    "type": "categorical",
+                    "sort": {
+                      "by": "y-reversed"
+                    }
+                  }
+                },
+                "y": {
+                  "fieldName": "fatality_rate",
+                  "displayName": "Fatality Rate",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "color": {
+                  "fieldName": "fatality_rate",
+                  "displayName": "Fatality Rate",
+                  "scale": {
+                    "type": "quantitative",
+                    "colorRamp": {
+                      "mode": "scheme",
+                      "scheme": "greenblue"
+                    }
+                  }
+                },
+                "label": {
+                  "show": false
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 24,
+            "width": 12,
+            "height": 6
+          }
+        },
+        {
+          "widget": {
+            "name": "6a3099b7",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "e95c70ac",
+                  "fields": [
+                    {
+                      "name": "year",
+                      "expression": "`year`"
+                    },
+                    {
+                      "name": "sum(total_accidents)",
+                      "expression": "SUM(`total_accidents`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "frame": {
+                "showDescription": true,
+                "description": "Total number of accidents from 2012 - 2025"
+              },
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "year",
+                  "axis": {
+                    "hideGrid": false,
+                    "hideLabels": false,
+                    "hideTitle": false
+                  },
+                  "displayName": "Year",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "y": {
+                  "fieldName": "sum(total_accidents)",
+                  "displayName": "Total Accidents",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "label": {
+                  "show": true
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 17,
+            "width": 6,
+            "height": 7
+          }
+        },
+        {
+          "widget": {
+            "name": "b9526348",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "b4985fbf",
+                  "fields": [
+                    {
+                      "name": "count(*)",
+                      "expression": "COUNT(`*`)"
+                    },
+                    {
+                      "name": "DAY_OF_WEEK",
+                      "expression": "`DAY_OF_WEEK`"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "frame": {
+                "showTitle": true,
+                "title": "Accident by week "
+              },
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "DAY_OF_WEEK",
+                  "displayName": "Day of Week",
+                  "scale": {
+                    "type": "categorical",
+                    "sort": {
+                      "by": "y-reversed"
+                    }
+                  }
+                },
+                "y": {
+                  "fieldName": "count(*)",
+                  "displayName": "Number of Accidents",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "color": {
+                  "fieldName": "count(*)",
+                  "displayName": "Accidents",
+                  "scale": {
+                    "type": "quantitative",
+                    "colorRamp": {
+                      "mode": "scheme",
+                      "scheme": "greenblue"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 10,
+            "width": 6,
+            "height": 7
+          }
+        }
+      ],
+      "pageType": "PAGE_TYPE_CANVAS",
+      "layoutVersion": "GRID_V1"
+    },
+    {
+      "name": "7df83075",
+      "displayName": "Global Filters",
+      "pageType": "PAGE_TYPE_GLOBAL_FILTERS",
+      "layoutVersion": "GRID_V1"
+    }
+  ],
+  "uiSettings": {
+    "theme": {
+      "widgetHeaderAlignment": "ALIGNMENT_UNSPECIFIED"
+    },
+    "applyModeEnabled": false
+  }
+}
