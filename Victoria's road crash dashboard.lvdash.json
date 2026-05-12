@@ -451,7 +451,7 @@
               "frame": {
                 "showDescription": true,
                 "showTitle": true,
-                "title": "Time VS Accident hour",
+                "title": "Time VS No of Accidents",
                 "description": "Crashes peak on Fridays between 3 - 5 PM"
               },
               "widgetType": "line",
@@ -509,7 +509,7 @@
               "version": 3,
               "frame": {
                 "showTitle": true,
-                "title": "Fatality rate by Location"
+                "title": "Fatality Rate by Location"
               },
               "widgetType": "bar",
               "encodings": {
@@ -583,7 +583,7 @@
               "version": 3,
               "frame": {
                 "showDescription": true,
-                "description": "Total number of accidents from 2012 - 2025"
+                "description": "Total number of accidents every year from 2012 - 2025"
               },
               "widgetType": "bar",
               "encodings": {
@@ -645,7 +645,7 @@
               "version": 3,
               "frame": {
                 "showTitle": true,
-                "title": "Accident by week "
+                "title": "Accident by Week "
               },
               "widgetType": "bar",
               "encodings": {
